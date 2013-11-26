@@ -7,6 +7,8 @@ from django.forms import ModelForm, ValidationError
 from django import forms
 from iddacultura.models import User, UserProfile
 from captcha.fields import ReCaptchaField
+import settings
+from django.core.exceptions import ImproperlyConfigured
 
 
 class BRCPFFieldUnique(BRCPFField):
@@ -38,6 +40,12 @@ class UserRegistrationForm(RegistrationFormUniqueEmail):
     Extende o formulário de registro de usuário para
     mais campos.
     """
+
+    def __init__(self, *args, **kwargs):
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+
+        if not settings.RECAPTCHA_PUBLIC_KEY or not settings.RECAPTCHA_PRIVATE_KEY:
+            raise ImproperlyConfigured('É necessário definir as chaves do ReCaptcha no settings_local.py')
 
     first_name = forms.CharField(label="Nome", help_text='',)
     last_name = forms.CharField(label="Sobrenome", help_text='')
